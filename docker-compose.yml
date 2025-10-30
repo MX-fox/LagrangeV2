@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  lagrange-milky:
+    build:
+      context: .
+      dockerfile: ./Lagrange.Milky/Dockerfile
+    container_name: lagrange-milky
+    restart: unless-stopped
+    volumes:
+      # Mount configuration directory
+      - ./config:/app/config:rw
+      # Mount logs directory
+      - ./logs:/app/logs:rw
+    ports:
+      # Expose HTTP API port if needed
+      - "8080:8080"
+    environment:
+      # Set timezone
+      - TZ=Asia/Shanghai
+      # Set logging level
+      - Logging__LogLevel__Default=Information
+    # Uncomment if you need to use host network
+    # network_mode: host
+    
+    # Health check (optional)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      disable: true  # Disable by default, enable if health endpoint exists
+
+# Optional: Create named volumes for persistent data
+volumes:
+  config:
+    driver: local
+  logs:
+    driver: local
